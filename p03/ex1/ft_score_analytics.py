@@ -1,7 +1,7 @@
 import sys
 
 if __name__ == "__main__":
-    tab = []
+    tab: list[int] = []
     print("=== Player Score Analytics ===\n")
     i = 1
     if len(sys.argv) <= 1:

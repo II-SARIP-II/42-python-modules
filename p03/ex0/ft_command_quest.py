@@ -2,7 +2,7 @@ import sys
 
 if __name__ == "__main__":
     print("=== Command Quest ===\n")
-    i = 0
+    i: int = 0
     while i < len(sys.argv):
         if i == 0:
             if len(sys.argv) > 1:
