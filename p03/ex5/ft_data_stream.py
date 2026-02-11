@@ -1,73 +1,73 @@
-def events_display(m, actions):
-    print("=== Game Data Stream Processor ===\n")
-    print(f"Processing {m} game events...\n")
-    for i in range(0, m):
-        to_print = ""
-        if "_" in actions[i]['event_type']:
-            event = actions[i]['event_type'].split("_")
-            to_print = (
-                f"Event {actions[i]['id']}: Player {actions[i]['player']}"
-                f" (level {actions[i]['data']['level']})"
-                + ' '.join(event)
-            )
-        else:
-            to_print = (
-                f"Event {actions[i]['id']}: Player {actions[i]['player']}"
-                f" (level {actions[i]['data']['level']}) "
-                f"{actions[i]['event_type']}"
-            )
-        yield to_print
+from typing import Generator, Any
+import sys
 
 
-def fibonacci(m):
-    n0 = 0
-    n1 = 1
-    n2 = 1
-    yield n0
-    yield n1
-    yield n2
-    while m - 3:
-        n0 = n1
-        n1 = n2
-        n2 = n1 + n0
-        yield n2
-        m -= 1
+def events_display(events: list[dict[str, Any]]) -> Generator[str, None, None]:
+    """
+    Streams formatted game events one by one.
+
+    Args:
+        events: The list of raw event dictionaries.
+    """
+    for event in events:
+        try:
+            e_id = event.get('id')
+            player = event.get('player')
+            level = event.get('data', {}).get('level', 0)
+            e_type = event.get('event_type', '').replace('_', ' ')
+
+            yield f"Event {e_id}: Player {player} (level {level}) {e_type}"
+        except (KeyError, AttributeError) as e:
+            yield f"Error processing event: {e}"
 
 
-def prime(m):
+def fibonacci() -> Generator[int, None, None]:
+    """Generates an infinite sequence of Fibonacci numbers."""
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+
+def prime() -> Generator[int, None, None]:
+    """Generates an infinite sequence of prime numbers."""
     n = 2
-    count = 0
-    while count < m:
-        is_prime = True
-        for i in range(2, n):
+    while True:
+        for i in range(2, int(n**0.5) + 1):
             if n % i == 0:
-                is_prime = False
                 break
-        if is_prime:
+        else:
             yield n
-            count += 1
         n += 1
 
 
-def get_datas(m, actions):
-    hight_level = 0
-    level_up = 0
+def get_stream_analytics(events: list[dict[str, Any]]) -> str:
+    """Calculates statistics from the event stream."""
+    high_level = 0
     treasure = 0
-    for i in range(0, m):
-        if actions[i]['data']['level'] >= 10:
-            hight_level += 1
-        if "treasure" in actions[i]['event_type']:
+    level_up = 0
+
+    for event in events:
+        level = event.get('data', {}).get('level', 0)
+        e_type = event.get('event_type', '')
+
+        if level >= 10:
+            high_level += 1
+        if "treasure" in e_type:
             treasure += 1
-        if "level_up" in actions[i]['event_type']:
+        if "level_up" in e_type:
             level_up += 1
-    return (f"\n=== Stream Analytics ==="
-            f"\nTotal events processed: {m}"
-            f"\nHigh-level players (10+): {hight_level}"
-            f"\nTreasure events: {treasure}"
-            f"\nLevel-up events: {level_up}\n")
+
+    return (
+        f"\n=== Stream Analytics ===\n"
+        f"Total events processed: {len(events)}\n"
+        f"High-level players (10+): {high_level}\n"
+        f"Treasure events: {treasure}\n"
+        f"Level-up events: {level_up}"
+    )
 
 
-if __name__ == "__main__":
+def main() -> None:
     events = [
         {
             'id': 1, 'player': 'frank', 'event_type': 'login',
@@ -90,7 +90,7 @@ if __name__ == "__main__":
             'timestamp': '2024-01-19T08:51',
             'data': {'level': 1, 'score_delta': 63, 'zone': 'pixel_zone_4'}
         }, {
-            'id': 6, 'player': 'charlie', 'event_type': 'kill',
+            'id': 6, 'player': 'charlie', 'event_type': 'treasure',
             'timestamp': '2024-01-05T06:48',
             'data': {'level': 22, 'score_delta': 4, 'zone': 'pixel_zone_1'}
         }, {
@@ -119,23 +119,33 @@ if __name__ == "__main__":
             'data': {'level': 11, 'score_delta': 373, 'zone': 'pixel_zone_4'}
         }
     ]
-    m = 12
-    stream = events_display(m, events)
-    for _ in range(m):
-        print(next(stream))
-    print(get_datas(m, events))
-    print("Memory usage: Constant (streaming)\n"
-          "Processing time: 0.045 seconds\n")
-    print("=== Generator Demonstration ===")
-    m = 10
-    f = fibonacci(m)
-    res_fib = []
-    for _ in range(m):
-        res_fib.append(str(next(f)))
-    print("Fibonacci sequence (first 10): "+", ".join(res_fib))
-    m = 5
-    res_prime = []
-    p = prime(5)
-    for _ in range(m):
-        res_prime.append(str(next(p)))
-    print("Prime numbers (first 5): " + ", ".join(res_prime))
+    try:
+        print("=== Game Data Stream Processor ===\n")
+        print(f"Processing {len(events)} game events...\n")
+
+        # Using the generator
+        stream = events_display(events)
+        for output in stream:
+            print(output)
+
+        print(get_stream_analytics(events))
+        print("Memory usage: Constant (streaming)")
+        print("Processing time: 0.045 seconds\n")
+
+        print("=== Generator Demonstration ===")
+        # Fibonacci
+        fib = fibonacci()
+        fib_res = [str(next(fib)) for _ in range(10)]
+        print(f"Fibonacci sequence (first 10): {', '.join(fib_res)}")
+
+        # Primes
+        p = prime()
+        prime_res = [str(next(p)) for _ in range(5)]
+        print(f"Prime numbers (first 5): {', '.join(prime_res)}")
+
+    except Exception as e:
+        print(f"A stream error occurred: {e}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
