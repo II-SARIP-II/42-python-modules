@@ -1,21 +1,23 @@
-def crisis_handler(f):
-    pre = "ROUTINE ACCESS" if f == "standard_archive.txt" else "CRISIS ALERT"
-    print(f"{pre}: Attempting access to '{f}'...")
+def crisis_handler(filename: str) -> None:
     try:
-        with open(f, 'r') as vault:
+        with open(filename, 'r') as vault:
             content = vault.read()
+            print(f"ROUTINE ACCESS: Attempting access to '{filename}'...")
             print(f"SUCCESS: Archive recovered - {content}", end="")
             print("STATUS: Normal operations resumed\n")
 
     except FileNotFoundError:
+        print(f"CRISIS ALERT: Attempting access to '{filename}'...")
         print("RESPONSE: Archive not found in storage matrix")
         print("STATUS: Crisis handled, system stable\n")
 
     except PermissionError:
+        print(f"CRISIS ALERT: Attempting access to '{filename}'...")
         print("RESPONSE: Security protocols deny access")
         print("STATUS: Crisis handled, security maintained\n")
 
     except Exception as e:
+        print(f"CRISIS ALERT: Attempting access to '{filename}'...")
         print(f"RESPONSE: Unexpected system anomaly: {e}")
         print("STATUS: Crisis handled, system stable\n")
 
