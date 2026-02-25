@@ -17,8 +17,8 @@ print("\nTesting package-level access (controlled by __init__.py):")
 
 for f in func:
     try:
-        todo: Callable[[], str] = getattr(alchemy, f)
-        print(f"alchemy.{f}(): {todo()}")
+        todoo: Callable[[], str] = getattr(alchemy, f)
+        print(f"alchemy.{f}(): {todoo()}")
     except (NameError, AttributeError):
         print(f"alchemy.{f}(): AttributeError - not exposed")
 
