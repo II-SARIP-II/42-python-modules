@@ -17,7 +17,7 @@ def main() -> None:
                   "source matrix_env/bin/activate # On Unix\n"
                   "matrix_env\n"
                   "Scripts\n"
-                  "activate\n")
+                  "activate     # on Windows\n")
         else:
             print("MATRIX STATUS: Welcome to the construct\n")
             print("Current Python:", current)
