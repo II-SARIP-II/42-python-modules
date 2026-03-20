@@ -158,7 +158,7 @@ if __name__ == "__main__":
         print(f"Stage {i}: {s.__class__.__name__}")
         for p in [p_json, p_csv, p_stream]:
             p.add_stage(s)
-    json_data: Dict = {"sensor": "temp", "value": 23.5}
+    json_data: Dict = {"type": "csv", "value": {"sensor": "temp", "value": 23.5}, "count": 0}
     print("\n=== Multi-Format Data Processing ===\n")
     p_json.process(json_data)
     csv_data: str = "user,action,timestamp"
